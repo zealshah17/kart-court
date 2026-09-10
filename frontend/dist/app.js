@@ -11,7 +11,13 @@ let generationController;
 function updateTestButton() {
   const ready = caseReady($('product-link').value, state.photos.length, generating);
   $('test-case').disabled = !ready;
-  $('test-case').title = ready ? 'Generate a test conversation from the saved product JSON' : generating ? 'Generating conversation…' : 'Add a valid product link and a room photo first';
+  if (!caseData && !generating) {
+    $('board-summary').textContent = !$('product-link').value.trim()
+      ? 'Add an Amazon product link to start your case.'
+      : state.photos.length < 1 ? 'Link entered. Add a room photo to enable Test case.'
+      : ready ? 'Ready. Click Test case to look up your product.' : 'Enter a valid product link to continue.';
+  }
+  $('test-case').title = ready ? 'Look up your Amazon product and generate its case' : generating ? 'Generating conversation…' : 'Add an Amazon product link and a room photo first';
 }
 function toast(message, duration = 4000) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').hidden = true, duration); }
 export function parseMeasurement(value) {
@@ -67,7 +73,7 @@ function setMeasurement(value) {
 $('product-link').addEventListener('change', () => {
   const input = $('product-link'); const value = input.value.trim(); input.setCustomValidity('');
   if (!value) { state.link = '';  return; }
-  try { const url = new URL(value); if (!['https:', 'http:'].includes(url.protocol)) throw new Error(); state.link = url.href;  toast('Link saved. Test case still uses the saved product JSON.'); }
+  try { const url = new URL(value); if (!['https:', 'http:'].includes(url.protocol)) throw new Error(); state.link = url.href;  toast('Link ready. Click Test case to look up this product.'); }
   catch { state.link = '';  input.setCustomValidity('Enter a valid http or https product link.'); input.reportValidity(); }
 });
 $('product-link').addEventListener('input', () => { $('product-link').setCustomValidity(''); updateTestButton(); });
@@ -144,11 +150,17 @@ const hearing = createHearing({
 });
 function startHearing() {
   if (hearing.active || generating) return;
-  if (!generatedConversation) { toast('Click Test case to generate dialogue from the saved product JSON.'); return; }
+  if (!generatedConversation) { toast('Click Test case to look up your product and generate dialogue.'); return; }
   hearing.start(generatedConversation.lines);
 }
 $('test-case').addEventListener('click', async () => {
   if (!caseReady($('product-link').value, state.photos.length, generating)) { updateTestButton(); return; }
+  const productLink = $('product-link').value.trim();
+  state.link = productLink;
+  $('product-link').disabled = true;
+  caseData = null;
+  state.name = '';
+  state.width = null;
   generating = true;
   hearing.stop();
   generatedConversation = null;
@@ -159,8 +171,9 @@ $('test-case').addEventListener('click', async () => {
   document.querySelector('.board').classList.add('empty');
   $('board-summary').textContent = 'Gathering evidence for the case…';
   generationController = new AbortController();
+  let failureMessage = '';
   try {
-    const response = await fetch('/api/test-case', { method: 'POST', signal: AbortSignal.any([generationController.signal, AbortSignal.timeout(610000)]) });
+    const response = await fetch('/api/product-case', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: productLink }), signal: AbortSignal.any([generationController.signal, AbortSignal.timeout(740000)]) });
     const data = await response.json().catch(() => { throw new Error('The API route is unavailable. Restart Product Court using Start Product Court.command.'); });
     if (!response.ok) throw new Error(data.error || 'Generation failed. Please retry.');
     caseData = data;
@@ -187,11 +200,14 @@ $('test-case').addEventListener('click', async () => {
   } catch (error) {
     document.querySelector('.board').classList.remove('empty');
     renderFit();
-    toast(error.name === 'TimeoutError' ? 'Generation timed out. Try again.' : error.message, 12000);
+    failureMessage = error.name === 'TimeoutError' ? 'Generation timed out. Try again.' : error.message;
+    toast(failureMessage, 12000);
   } finally {
     generating = false;
+    $('product-link').disabled = false;
     updateTestButton();
     $('test-case').textContent = 'Test again';
+    if (failureMessage) $('board-summary').textContent = failureMessage;
   }
 });
 $('objection').addEventListener('click', () => startHearing());

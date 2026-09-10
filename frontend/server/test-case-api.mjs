@@ -5,6 +5,7 @@ import { buildProductContext } from './product-context.mjs';
 import { productDimensions } from './case-input.mjs';
 
 export function createTestCaseHandler({ generate = generateConversation, generateSprite = generateProductSprite,
+  source = 'examples/product-row.json',
   loadRow = async () => JSON.parse(await readFile(new URL('../examples/product-row.json', import.meta.url), 'utf8')),
 } = {}) {
   let busy = false;
@@ -23,7 +24,7 @@ export function createTestCaseHandler({ generate = generateConversation, generat
     res.on('close', cancel);
     try {
       // Read afresh on every click so newly added reviews enter the prompt.
-      const row = await loadRow();
+      const row = await loadRow(req, { signal: controller.signal });
       const context = buildProductContext(row);
       const [textResult, imageResult] = await Promise.allSettled([
         generate(row, { signal: controller.signal }),
@@ -34,9 +35,9 @@ export function createTestCaseHandler({ generate = generateConversation, generat
       const spriteImage = imageResult.status === 'fulfilled' ? imageResult.value : null;
       const spriteError = imageResult.status === 'rejected' ? imageResult.reason.message : null;
       send(200, { conversation, product: context.product, dimensions: productDimensions(context.product),
-        source: 'examples/product-row.json', spriteImage, spriteError, imageUrl: row.product.imageUrl || null });
+        source, extractionId: row.id || null, spriteImage, spriteError, imageUrl: row.product.imageUrl || null });
     } catch (error) {
-      send(502, { error: error?.code ? 'Could not read the example product JSON.' : error.message || 'Could not generate the test case.' });
+      send(error.status || 502, { error: error?.code ? 'Could not read the example product JSON.' : error.message || 'Could not generate the test case.' });
     } finally { busy = false; res.off('close', cancel); }
   };
 }

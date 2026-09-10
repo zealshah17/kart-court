@@ -1,3 +1,22 @@
+## Live product-link connection
+
+Start both servers from the repository root in separate terminals:
+
+```sh
+npm --prefix backend ci
+npm --prefix backend run dev
+```
+
+```sh
+npm --prefix frontend run dev
+```
+
+Open http://localhost:5173, enter an HTTPS Amazon product link, add a room photo, and click **Test case**. The frontend posts `{ "url": "https://www.amazon.com/dp/…" }` to `POST /api/product-case`. Its server calls the backend's `POST /api/products/extract`, then uses the returned product and reviews for dialogue and artwork. Extraction errors stop generation and appear on the page. Each new case performs extraction, saves a Supabase row, and requests text and image generation. Room photos remain local.
+
+Put `SERPAPI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and `OPENAI_API_KEY` in the project-root `.env`. The frontend also supports `frontend/.env` and the backend supports `backend/.env`; existing environment variables take precedence. Set server-side `BACKEND_URL` to override `http://127.0.0.1:4000`. The same-origin frontend endpoint avoids browser CORS configuration and keeps keys on the servers.
+
+`/api/test-case` remains a fixture-only development endpoint. References below to the saved-product test describe that legacy endpoint; the visible Test case button now uses the entered link.
+
 > The app lives in `frontend/`. From the repository root, run `cd frontend` before the npm commands below, or double-click `frontend/Start Product Court.command`. Keep your local API configuration in `frontend/.env`.
 
 # Product Court

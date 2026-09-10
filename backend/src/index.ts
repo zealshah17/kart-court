@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'node:path';
+config({ path: resolve(__dirname, '../../.env') });
+config({ path: resolve(__dirname, '../.env') });
 import { getSerpApiKey } from './services/amazon';
 import { createApp } from './app';
 import { getSupabaseConfig } from './services/supabase';

@@ -10,7 +10,7 @@
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "openai:check": "node scripts/check-openai.mjs",
-    "check": "node --check dist/app.js && node --check dist/hearing.js && node --check server.mjs && node --check server/env.mjs && node --check server/openai.mjs && node --check scripts/check-openai.mjs && node --check server/generate-conversation.mjs && node --check scripts/generate-conversation.mjs && node --check server/product-context.mjs && node --check server/test-case-api.mjs && node --check server/case-input.mjs && node --check server/generate-product-sprite.mjs",
+    "check": "node --check dist/app.js && node --check dist/hearing.js && node --check server.mjs && node --check server/product-api.mjs && node --check server/env.mjs && node --check server/openai.mjs && node --check scripts/check-openai.mjs && node --check server/generate-conversation.mjs && node --check scripts/generate-conversation.mjs && node --check server/product-context.mjs && node --check server/test-case-api.mjs && node --check server/case-input.mjs && node --check server/generate-product-sprite.mjs",
     "test": "node --test tests/*.test.mjs",
     "conversation:generate": "node scripts/generate-conversation.mjs"
   }
