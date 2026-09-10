@@ -10,7 +10,7 @@ export interface CustomerSummaryTopic {
 export interface CustomerSummary {
   text: string;
   source: "amazon_ai_generated";
-  capturedFrom: "product_page" | "user_screenshot" | "user_html";
+  capturedFrom: "product_page" | "user_screenshot" | "user_html" | "serpapi";
   topics: CustomerSummaryTopic[];
 }
 
@@ -46,6 +46,7 @@ export interface ProductLookupResult {
   reviews: ProductReview[];
   extraction: {
     fetchedAt: string;
+    provider?: "serpapi";
     reviewSourceUrl: string;
     reviewScope: "visible_sample";
     warnings: string[];

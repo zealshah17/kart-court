@@ -40,7 +40,7 @@ export function createApp(lookup = lookupProduct, save = saveExtraction) {
       res.status(error.type === 'entity.too.large' ? 413 : 400).json({ error: { code: 'INVALID_BODY', message: 'Send a valid JSON body smaller than 8 KB.' } }); return;
     }
     console.error('Product extraction failed:', error instanceof Error ? error.message : 'Unknown error');
-    res.status(502).json({ error: { code: 'EXTRACTION_FAILED', message: 'Could not extract this product. Check browser setup and try again later.' } });
+    res.status(502).json({ error: { code: 'EXTRACTION_FAILED', message: 'Could not extract this product. Check provider configuration and try again later.' } });
   };
   app.use(onError);
   return app;
