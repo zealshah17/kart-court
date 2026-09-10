@@ -8,14 +8,16 @@ let toastTimer;
 let generatedConversation = null;
 let generating = false;
 let generationController;
+let userContextText = '';
 function updateTestButton() {
   const ready = caseReady($('product-link').value, state.photos.length, generating);
   $('test-case').disabled = !ready;
+  $('test-case').textContent = 'Start hearing';
   if (!caseData && !generating) {
     $('board-summary').textContent = !$('product-link').value.trim()
       ? 'Add an Amazon product link to start your case.'
-      : state.photos.length < 1 ? 'Link entered. Add a room photo to enable Test case.'
-      : ready ? 'Ready. Click Test case to look up your product.' : 'Enter a valid product link to continue.';
+      : state.photos.length < 1 ? 'Link entered. Add a room photo to enable Start hearing.'
+      : ready ? 'Ready. Click Start hearing to look up your product.' : 'Enter a valid product link to continue.';
   }
   $('test-case').title = ready ? 'Look up your Amazon product and generate its case' : generating ? 'Generating conversation…' : 'Add an Amazon product link and a room photo first';
 }
@@ -36,7 +38,65 @@ function showDetail(card) {
   $('resolve').textContent = 'Back to court'; $('resolve').dataset.action = 'close';
   $('verdict-dialog').showModal();
 }
+function renderRoomPreview() {
+  const preview = $('room-preview');
+  preview.replaceChildren();
+  const room = state.photos[0];
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  if (room) {
+    const photo = new Image();
+    photo.src = room.url;
+    photo.decoding = 'async';
+    photo.onload = () => {
+      const scale = Math.max(canvas.width / photo.naturalWidth, canvas.height / photo.naturalHeight);
+      const drawW = photo.naturalWidth * scale;
+      const drawH = photo.naturalHeight * scale;
+      const offsetX = (canvas.width - drawW) / 2;
+      const offsetY = (canvas.height - drawH) / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(photo, offsetX, offsetY, drawW, drawH);
+      if (caseData?.spriteImage) {
+        const product = new Image();
+        product.src = caseData.spriteImage;
+        product.decoding = 'async';
+        product.onload = () => {
+          const baseW = canvas.width * 0.30;
+          const baseH = canvas.height * 0.32;
+          const productW = Math.min(baseW, product.naturalWidth * 0.9);
+          const productH = Math.min(baseH, product.naturalHeight * 0.9);
+          const productX = (canvas.width - productW) / 2;
+          const productY = canvas.height - productH - 12;
+          ctx.drawImage(product, productX, productY, productW, productH);
+          preview.append(canvas);
+        };
+      } else {
+        preview.append(canvas);
+      }
+    };
+  } else if (caseData?.spriteImage) {
+    const product = new Image();
+    product.src = caseData.spriteImage;
+    product.decoding = 'async';
+    product.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#d8d0ba';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const productW = Math.min(canvas.width * 0.32, product.naturalWidth * 0.9);
+      const productH = Math.min(canvas.height * 0.34, product.naturalHeight * 0.9);
+      const productX = (canvas.width - productW) / 2;
+      const productY = canvas.height - productH - 18;
+      ctx.drawImage(product, productX, productY, productW, productH);
+      preview.append(canvas);
+    };
+  }
+  preview.hidden = !(room || caseData?.spriteImage);
+}
 function renderFit() {
+  renderRoomPreview();
   $('exhibit-name').textContent = caseData ? state.name : '';
   $('exhibit-name').hidden = !caseData;
   $('exhibit-name').title = caseData ? state.name : '';
@@ -73,7 +133,7 @@ function setMeasurement(value) {
 $('product-link').addEventListener('change', () => {
   const input = $('product-link'); const value = input.value.trim(); input.setCustomValidity('');
   if (!value) { state.link = '';  return; }
-  try { const url = new URL(value); if (!['https:', 'http:'].includes(url.protocol)) throw new Error(); state.link = url.href;  toast('Link ready. Click Test case to look up this product.'); }
+  try { const url = new URL(value); if (!['https:', 'http:'].includes(url.protocol)) throw new Error(); state.link = url.href;  toast('Link ready. Click Start hearing to look up this product.'); }
   catch { state.link = '';  input.setCustomValidity('Enter a valid http or https product link.'); input.reportValidity(); }
 });
 $('product-link').addEventListener('input', () => { $('product-link').setCustomValidity(''); updateTestButton(); });
@@ -111,7 +171,7 @@ $('room-photos').addEventListener('change', async (event) => {
   document.querySelector('.board').classList.add('updated');
   const first = state.photos[0]; renderFit();
   $('upload-trigger').textContent = `▧  ${state.photos.length} photo${state.photos.length === 1 ? '' : 's'} added`;
-  const image = new Image(); image.src = first.url; image.alt = `Your room: ${first.name}`; $('room-preview').replaceChildren(image); $('room-preview').hidden = false;
+  $('room-preview').hidden = false;
   toast(loaded.length === files.length ? 'Room photos entered into evidence.' : 'Valid photos added (up to 5, under 10 MB each).'); event.target.value = '';
 });
 const scene = document.querySelector('.scene');
@@ -139,9 +199,7 @@ const hearing = createHearing({
     $('hearing-announcement').textContent = '';
     if (completed && generatedConversation) {
       $('verdict-title').textContent = 'The court needs your verdict.';
-      $('verdict-body').textContent = generatedConversation.missingEvidence.length
-        ? 'Still to check: ' + generatedConversation.missingEvidence.join('; ')
-        : 'Review the evidence before deciding.';
+      $('verdict-body').textContent = 'Review the evidence before deciding.';
       document.querySelector('.arguments').hidden = true;
       $('resolve').textContent = 'Back to court'; $('resolve').dataset.action = 'close';
       $('verdict-dialog').showModal();
@@ -150,7 +208,7 @@ const hearing = createHearing({
 });
 function startHearing() {
   if (hearing.active || generating) return;
-  if (!generatedConversation) { toast('Click Test case to look up your product and generate dialogue.'); return; }
+  if (!generatedConversation) { toast('Click Start hearing to look up your product and generate dialogue.'); return; }
   hearing.start(generatedConversation.lines);
 }
 $('test-case').addEventListener('click', async () => {
@@ -206,7 +264,7 @@ $('test-case').addEventListener('click', async () => {
     generating = false;
     $('product-link').disabled = false;
     updateTestButton();
-    $('test-case').textContent = 'Test again';
+    $('test-case').textContent = 'Start hearing';
     if (failureMessage) $('board-summary').textContent = failureMessage;
   }
 });
@@ -234,7 +292,11 @@ for (const id of ['product-link', 'upload-trigger', 'cards']) {
   $(id).addEventListener('click', () => hearing.stop());
 }
 window.addEventListener('pagehide', () => { hearing.stop(); generationController?.abort(); });
-$('resolve').addEventListener('click', () => { $('verdict-dialog').close(); if ($('resolve').dataset.action === 'evidence') { openEvidence('measurement'); } });
+$('resolve').addEventListener('click', () => {
+  $('verdict-dialog').close();
+  if ($('resolve').dataset.action === 'evidence') { openEvidence('measurement'); }
+});
+for (const close of document.querySelectorAll('dialog .close')) close.addEventListener('click', () => close.closest('dialog').close());
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();
   Promise.resolve(document.modelContext.registerTool({ name: 'record_room_measurement', description: 'Record the available width and update the visible furniture fit evidence.', inputSchema: { type: 'object', properties: { measurement: { type: 'string' } }, required: ['measurement'], additionalProperties: false }, annotations: { readOnlyHint: false, untrustedContentHint: false }, execute(input) { if (typeof input?.measurement !== 'string') throw new Error('A measurement string is required.'); return setMeasurement(input.measurement); } }, { signal: lifecycle.signal })).catch(() => {});

@@ -45,7 +45,9 @@
 .scene{background:url('assets/IMG_5950.png') center/100% 100% no-repeat;isolation:isolate}
 .court-title{position:absolute;top:7.3%;left:34%;width:32%;margin:0;text-align:center;color:#ffe0a0;font-family:'VT323',monospace;font-size:2.5cqw;line-height:1;text-transform:uppercase;letter-spacing:.06em;text-shadow:2px 2px #3e2417}
 .room-display{position:absolute;left:35%;top:16%;width:30%;height:20%;text-align:center}.room-display h2{font:1.3cqw 'VT323',monospace;letter-spacing:.12em;color:#583924;margin:0 0 .5cqw}.room-display svg{display:block;width:65%;height:80%;margin:auto;filter:drop-shadow(2px 3px 2px #67482870)}
-.scene .room-preview{left:40.25%;top:19.3%;width:19.5%;height:16%;z-index:1}
+.scene .room-preview{left:40.25%;top:19.3%;width:19.5%;height:16%;z-index:1;overflow:hidden;border:3px solid #8e623b;background:#e9dfcf;image-rendering:pixelated}
+.scene .room-preview .room-photo,.scene .room-preview .product-in-room{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+.scene .room-preview .product-in-room{position:absolute;left:24%;bottom:9%;width:52%;height:42%;object-fit:contain;object-position:center bottom;image-rendering:pixelated;filter:drop-shadow(0 6px 0 rgba(42,27,18,.42));z-index:2}
 .character{position:absolute;border:0;padding:0;background:none;overflow:hidden;z-index:2;cursor:pointer;transform:none!important;filter:none!important}
 .character-angel{left:12.7%;top:24%;width:20%;height:21%}.character-devil{left:69.8%;top:26%;width:22%;height:19%}
 .character-art{display:block;position:relative;width:100%}.character img{display:block;width:100%;height:auto;image-rendering:pixelated}
@@ -53,8 +55,8 @@
 .center-product{position:absolute;left:38%;top:33%;width:24%;height:20%;pointer-events:none}
 .exhibit-label{position:absolute;left:40%;top:58.2%;width:20%;text-align:center;color:#362113;font:1.4cqw 'VT323',monospace}.exhibit-label span{font-family:'Barlow Condensed',sans-serif;font-size:1.2cqw}
 .scene .speech,.scene.hearing .speech{position:absolute;top:13.8%;height:12%;min-height:0;max-height:none;width:32%;padding:1.7cqw 1.1cqw 1.5cqw;background-color:transparent;background-repeat:no-repeat;background-size:100% 100%;border:0;box-shadow:none;color:var(--ink);font-family:'VT323',monospace;font-size:clamp(12px,1.45cqw,27px);line-height:1.05;z-index:4;overflow:visible;pointer-events:none}
-.scene .speech.angel{left:.5%;background-image:url('assets/IMG_5006.png')}
-.scene .speech.devil{left:68%;background-image:url('assets/textbubbleleft.png%20textbubbleright.png%20court%20room.png')}
+.scene .speech.angel{left:2%;right:auto;max-width:32%;background-image:url('assets/IMG_5006.png')}
+.scene .speech.devil{left:auto;right:2%;max-width:32%;background-image:url('assets/textbubbleleft.png%20textbubbleright.png%20court%20room.png')}
 .scene .speech strong{font-size:.85em;margin:0 0 .12cqw}.scene .speech span{display:block}
 .scene .intake{left:21%;top:73%;width:58%;height:8%;background:#fbf0dc;border:3px solid #8e623b;border-radius:4px;box-shadow:0 3px 0 #472d1c;gap:.65cqw}
 .scene .intake label{color:var(--ink)}.scene .intake input,.scene .upload-field button{color:var(--ink);background:#fff9ef;border:1px solid #bfa98c}.scene .intake input::placeholder{color:#827b8c}.scene .link-icon,.scene .photo-icon,.scene .intake-divider{visibility:visible}.scene .link-icon,.scene .photo-icon{font-size:1.8cqw}
@@ -62,13 +64,13 @@
 @media(max-width:800px){.court-title{font-size:3.55cqw}.room-display h2{font-size:1.85cqw}.exhibit-label{font-size:2cqw}.exhibit-label span{font-size:1.7cqw}.scene .speech,.scene.hearing .speech{top:13%;height:13%;padding:2.4cqw 1.7cqw 2cqw;font-size:clamp(11px,2.05cqw,18px)}.scene .intake{border-width:2px;gap:.7cqw}.scene .link-icon,.scene .photo-icon{font-size:2.5cqw}.scene .actions button{border-width:2px}}
 
 /* Content-sized dialogue, anchored above the speaker like a game speech balloon. */
-.scene .speech,.scene.hearing .speech{top:auto;bottom:77%;height:auto;min-height:0;max-height:none;width:max-content;max-width:30%;padding:.45em .7em .65em;background:none!important;isolation:isolate;overflow-wrap:anywhere;line-height:1.12;font-size:clamp(14px,1.45cqw,27px)}
-.scene .speech.angel{left:auto;right:70%;--bubble-art:url('assets/IMG_5006.png')}
-.scene .speech.devil{left:73%;right:auto;max-width:25%;--bubble-art:url('assets/textbubbleleft.png%20textbubbleright.png%20court%20room.png')}
-.scene .speech::before{content:'';position:absolute;inset:-25% -5% -50%;background:var(--bubble-art) center/100% 100% no-repeat;z-index:-1;image-rendering:pixelated}
+.scene .speech,.scene.hearing .speech{top:auto;bottom:77%;height:auto;min-height:0;max-height:none;width:min(32%,420px);max-width:32%;padding:.45em .7em .65em;background:none!important;isolation:isolate;overflow-wrap:anywhere;line-height:1.12;font-size:clamp(14px,1.45cqw,27px)}
+.scene .speech.angel{left:2%;right:auto;--bubble-art:url('assets/IMG_5006.png')}
+.scene .speech.devil{left:auto;right:2%;--bubble-art:url('assets/textbubbleleft.png%20textbubbleright.png%20court%20room.png')}
+.scene .speech::before{content:'';position:absolute;inset:-25% -6% -50%;background:var(--bubble-art) center/100% 100% no-repeat;z-index:-1;image-rendering:pixelated}
 .scene .speech::after{content:'▾';position:absolute;right:.6em;bottom:0;font-size:.8em;color:#674226}
 .court-conversation,.court-conversation button{cursor:pointer}
-@media(max-width:800px){.scene .speech,.scene.hearing .speech{bottom:70%;max-width:38%;font-size:clamp(14px,2.05cqw,18px);padding:.45em .7em .65em}.scene .speech.angel{right:62%}.scene .speech.devil{left:62%;max-width:36%}}
+@media(max-width:800px){.scene .speech,.scene.hearing .speech{bottom:70%;width:min(36%,260px);max-width:36%;font-size:clamp(14px,2.05cqw,18px);padding:.45em .7em .65em}.scene .speech.angel{left:2%;right:auto}.scene .speech.devil{left:auto;right:2%}}
 
 /* API test controls and an empty evidence board until a case is generated. */
 .board.empty .cards,.board.empty .question,.board.empty footer{visibility:hidden;pointer-events:none}

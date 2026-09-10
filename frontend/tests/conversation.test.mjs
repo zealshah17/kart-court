@@ -37,6 +37,44 @@ test('handles rate limits and incomplete results without exposing upstream error
   await assert.rejects(generateConversation(row, { apiKey: 'test-key', fetchImpl: async () => new Response(JSON.stringify({ status: 'incomplete' })) }), /did not complete/);
 });
 
+test('drops listing, review, and product-spec prompts and asks no questions at all', async () => {
+  const result = await generateConversation({ ...row, product: { title: 'Test chair' }, reviews: [] }, {
+    apiKey: 'test-key',
+    fetchImpl: async () => response({
+      lines: Array.from({ length: 8 }, (_, i) => ({ speaker: i % 2 ? 'devil' : 'angel', text: 'Short answer only.', evidence: [] })),
+      missingEvidence: ['Readable customer review text', 'What is the exact width?', 'How much clearance do you need?', 'Are you okay with assembly?', 'Is the armrest height enough?', 'What style and comfort feel do you want in this chair?', 'What matters most in daily use: comfort, look, or easy care?'],
+    }),
+  });
+  assert.deepEqual(result.missingEvidence, []);
+});
+
+test('asks no questions at all, even when the model tries to generate preference prompts', async () => {
+  const result = await generateConversation({ ...row, product: { title: 'Test chair' }, reviews: [] }, {
+    apiKey: 'test-key',
+    fetchImpl: async () => response({
+      lines: Array.from({ length: 8 }, (_, i) => ({ speaker: i % 2 ? 'devil' : 'angel', text: 'Short answer only.', evidence: [] })),
+      missingEvidence: [
+        'Does the cushion size and oval shape suit your papasan frame?',
+        'What are the full hand-washing and drying instructions?',
+        'What do readable customer reviews report about comfort and shape retention over time?',
+        'What style and comfort feel do you want in this chair?',
+        'What matters most in daily use: comfort, look, or easy care?',
+      ],
+    }),
+  });
+  assert.deepEqual(result.missingEvidence, []);
+});
+
+test('rejects unsupported "unavailable" mentions in the argument text', async () => {
+  await assert.rejects(generateConversation(row, {
+    apiKey: 'test-key',
+    fetchImpl: async () => response({
+      lines: Array.from({ length: 8 }, (_, i) => ({ speaker: i % 2 ? 'devil' : 'angel', text: i === 0 ? 'No readable review text was available.' : 'Short answer only.', evidence: [] })),
+      missingEvidence: ['What style and comfort feel do you want in this chair?'],
+    }),
+  }), /did not meet/);
+});
+
 test('distinguishes generation timeout from DNS errors without leaking details', async () => {
   await assert.rejects(generateConversation(row, { apiKey: 'test-key', fetchImpl: async () => { throw new DOMException('secret', 'TimeoutError'); } }), /exceeded 180 seconds/);
   await assert.rejects(generateConversation(row, { apiKey: 'test-key', fetchImpl: async () => { throw Object.assign(new Error('secret'), { cause: { code: 'ENOTFOUND' } }); } }), /Cannot resolve api.openai.com/);
