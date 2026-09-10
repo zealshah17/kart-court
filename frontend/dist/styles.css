@@ -136,3 +136,47 @@ button:disabled{cursor:wait;filter:saturate(.4);opacity:.7}
 @media(max-width:800px){.scene .exhibit-label #exhibit-name{font-size:1.1cqw}}
 
 .scene .center-product.pixel-product{image-rendering:pixelated;background:transparent;border:0;box-shadow:none;object-fit:contain;object-position:center bottom}
+
+.scene .voice-toggle{position:absolute;right:3%;top:3%;z-index:20;padding:8px 12px;border:2px solid #b58a4d;border-radius:5px;background:#34543f;color:#fff0ce;font:inherit;font-size:clamp(12px,1.3cqw,18px);cursor:pointer}
+.scene .voice-toggle[aria-pressed="false"]{background:#57321f}
+.scene .voice-toggle:focus-visible{outline:3px solid #fff0ce;outline-offset:3px}
+.scene .voice-toggle:disabled{opacity:.65;cursor:default}
+
+.scene .voice-controls{position:absolute;right:1%;bottom:14%;z-index:20;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;width:min(240px,38%)}
+.scene .actions{width:58%}
+.scene .voice-toggle{position:absolute;right:1%;top:87%;width:clamp(32px,3cqw,44px);height:6%;display:grid;place-items:center;padding:4px;border:2px solid #b58a4d;line-height:1}
+
+.scene #voice-status:not(:empty){flex-basis:100%;padding:5px 8px;border-radius:4px;background:#352317;color:#fff0ce;font:13px/1.35 sans-serif;text-align:right}
+
+.voice-controls audio{width:100%;height:32px;min-width:0}.voice-disclosure{flex-basis:100%;text-align:right;color:#fff0ce;font:12px sans-serif}
+
+/* Mouth motion follows actual audio playback, including native player pauses. */
+.scene.hearing:not(.voice-speaking) .mouth-open{animation:none;opacity:0}
+.scene.hearing:not(.voice-speaking) .mouth-closed{animation:none;opacity:1}
+
+/* Brass speaker with sound waves driven by actual audio playback. */
+.scene .voice-toggle{background:linear-gradient(145deg,#42634a,#253f30);box-shadow:inset 0 1px 0 #ffffff26,0 3px 0 #3e271c;color:#ffdfa0;transition:background .2s,box-shadow .2s}
+.scene .voice-toggle[aria-pressed="false"]{background:linear-gradient(145deg,#71513b,#463023);color:#dbc2a1}
+.speaker-icon{position:relative;display:block;width:26px;height:26px}
+.speaker-body{position:absolute;left:2px;top:5px;width:12px;height:16px;background:currentColor;clip-path:polygon(0 30%,35% 30%,100% 0,100% 100%,35% 70%,0 70%)}
+.speaker-wave{position:absolute;border:2px solid currentColor;border-left:0;border-top-color:transparent;border-bottom-color:transparent;border-radius:0 100% 100% 0;transform-origin:left center;transition:opacity .18s}
+.speaker-wave-near{left:14px;top:7px;width:5px;height:12px}
+.speaker-wave-far{left:16px;top:2px;width:9px;height:22px}
+.speaker-slash{position:absolute;left:12px;top:-1px;width:2px;height:28px;background:currentColor;transform:rotate(-42deg);opacity:0;box-shadow:0 0 0 2px #543b29;transition:opacity .18s}
+.voice-toggle[aria-pressed="false"] .speaker-wave{opacity:0}
+.voice-toggle[aria-pressed="false"] .speaker-slash{opacity:1}
+.voice-toggle.is-playing[aria-pressed="true"] .speaker-wave{animation:speaker-pulse .85s ease-in-out infinite}
+.voice-toggle.is-playing[aria-pressed="true"] .speaker-wave-far{animation-delay:.16s}
+@keyframes speaker-pulse{0%,100%{opacity:.3;transform:scaleX(.82)}50%{opacity:1;transform:scaleX(1.08)}}
+@media(prefers-reduced-motion:reduce){.voice-toggle.is-playing[aria-pressed="true"] .speaker-wave{animation:none}.speaker-wave,.speaker-slash{transition:none}}
+
+.voice-disclosure{display:flex;align-items:center;justify-content:flex-end;gap:7px}
+.voice-equalizer{display:inline-flex;align-items:center;gap:3px;height:18px;color:#ffdfa0}
+.voice-equalizer i{display:block;width:3px;height:16px;border-radius:2px;background:currentColor;transform:scaleY(.2);transform-origin:center;transition:transform .2s}
+.voice-controls.is-playing .voice-equalizer i{animation:voice-bars .72s ease-in-out infinite alternate}
+.voice-controls.is-playing .voice-equalizer i:nth-child(2){animation-delay:-.31s;animation-duration:.57s}
+.voice-controls.is-playing .voice-equalizer i:nth-child(3){animation-delay:-.18s;animation-duration:.83s}
+.voice-controls.is-playing .voice-equalizer i:nth-child(4){animation-delay:-.49s;animation-duration:.63s}
+.voice-controls.is-playing .voice-equalizer i:nth-child(5){animation-delay:-.12s;animation-duration:.77s}
+@keyframes voice-bars{0%{transform:scaleY(.2)}55%{transform:scaleY(.65)}100%{transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.voice-controls.is-playing .voice-equalizer i{animation:none;transform:scaleY(.65)}.voice-equalizer i{transition:none}}

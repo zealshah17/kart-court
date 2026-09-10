@@ -1,4 +1,6 @@
 import './server/env.mjs';
+import { createSpeechHandler } from './server/speech-api.mjs';
+const handleSpeech = createSpeechHandler();
 import { createTestCaseHandler } from './server/test-case-api.mjs';
 import { extractProduct } from './server/product-api.mjs';
 const handleTestCase = createTestCaseHandler();
@@ -11,6 +13,7 @@ import { networkInterfaces } from 'node:os';
 const root = fileURLToPath(new URL('./dist', import.meta.url));
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
+  if (new URL(req.url, 'http://localhost').pathname === '/api/speech') { await handleSpeech(req, res); return; }
   if (new URL(req.url, 'http://localhost').pathname === '/api/product-case') { await handleProductCase(req, res); return; }
   if (new URL(req.url, 'http://localhost').pathname === '/api/test-case') { await handleTestCase(req, res); return; }
   try {

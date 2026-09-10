@@ -1,3 +1,4 @@
+import { createVoices } from './voices.js';
 import { caseReady } from './case-ready.js';
 import { evidenceCards } from './evidence.js';
 import { createHearing } from './hearing.js';
@@ -115,20 +116,57 @@ $('room-photos').addEventListener('change', async (event) => {
   toast(loaded.length === files.length ? 'Room photos entered into evidence.' : 'Valid photos added (up to 5, under 10 MB each).'); event.target.value = '';
 });
 const scene = document.querySelector('.scene');
+let currentHearingLine = null;
+function showHearingLine(line) {
+  scene.dataset.speaker = line.speaker;
+  for (const side of ['angel', 'devil']) {
+    const speaking = side === line.speaker;
+    $(side).hidden = !speaking;
+    $(side).querySelector('span').textContent = speaking ? line.text : '';
+    $(side).setAttribute('aria-label', speaking ? `${side}: ${line.text}` : `${side} is listening`);
+  }
+  $('hearing-announcement').textContent = `${line.speaker === 'angel' ? 'Angel' : 'Devil'}: ${line.text} Click anywhere, or press Enter or Space, to continue.`;
+}
+const voices = createVoices({
+  onError: message => toast(message, 8000),
+  onStatus: message => { $('voice-status').textContent = message; },
+  onPlayback(phase, line) {
+    $('voice-toggle').classList.toggle('is-playing', phase === 'playing');
+    document.querySelector('.voice-controls').classList.toggle('is-playing', phase === 'playing');
+    if (!currentHearingLine || line !== currentHearingLine) return;
+    scene.classList.toggle('voice-speaking', phase === 'playing');
+    if (['playing', 'silent', 'error'].includes(phase)) showHearingLine(line);
+  },
+});
+function updateVoiceButton() {
+  $('voice-toggle').disabled = !voices.supported;
+  const label = !voices.supported ? 'Voice unavailable' : voices.enabled ? 'Mute voices' : 'Unmute voices';
+  $('voice-toggle').setAttribute('aria-label', label);
+  $('voice-toggle').title = label;
+  $('voice-toggle').setAttribute('aria-pressed', String(voices.enabled));
+}
+$('voice-toggle').addEventListener('click', () => { voices.setEnabled(!voices.enabled); updateVoiceButton(); });
+updateVoiceButton();
 const hearing = createHearing({
   onLine(line) {
+    currentHearingLine = line;
     document.body.classList.add('court-conversation');
-    scene.classList.add('hearing'); scene.dataset.speaker = line.speaker;
+    scene.classList.add('hearing');
+    scene.classList.remove('voice-speaking');
+    delete scene.dataset.speaker;
     for (const side of ['angel', 'devil']) {
-      const speaking = side === line.speaker;
-      $(side).hidden = !speaking;
-      $(side).querySelector('span').textContent = speaking ? line.text : '';
-      $(side).setAttribute('aria-label', speaking ? `${side}: ${line.text}` : `${side} is listening`);
+      $(side).hidden = true;
+      $(side).querySelector('span').textContent = '';
+      $(side).removeAttribute('aria-label');
     }
-    $('hearing-announcement').textContent = `${line.speaker === 'angel' ? 'Angel' : 'Devil'}: ${line.text} Click anywhere, or press Enter or Space, to continue.`;
+    $('hearing-announcement').textContent = voices.enabled ? 'Preparing the next spoken argument…' : '';
+    voices.speak(line);
   },
-  onPause(paused) { scene.classList.toggle('hearing-paused', paused); },
+  onPause(paused) { voices.pause(paused); scene.classList.toggle('hearing-paused', paused); },
   onEnd(completed) {
+    currentHearingLine = null;
+    scene.classList.remove('voice-speaking');
+    voices.stop();
     document.body.classList.remove('court-conversation');
     scene.classList.remove('hearing', 'hearing-paused'); delete scene.dataset.speaker;
     for (const side of ['angel', 'devil']) {
@@ -196,7 +234,7 @@ $('test-case').addEventListener('click', async () => {
     document.querySelector('.board').classList.remove('empty');
     renderFit();
     $('objection').disabled = false;
-    hearing.start(generatedConversation.lines);
+    $('board-summary').textContent = 'Case ready. Click Objection! to hear the arguments.';
   } catch (error) {
     document.querySelector('.board').classList.remove('empty');
     renderFit();
@@ -215,14 +253,14 @@ for (const side of ['angel', 'devil']) $(`${side}-character`).addEventListener('
 // Capture before app buttons so a dialogue click never also opens a form.
 // The initiating click reaches its target normally because no hearing is active yet.
 document.addEventListener('pointerdown', event => {
-  if (hearing.active && event.button === 0 && !event.target.closest('dialog')) event.preventDefault();
+  if (hearing.active && event.button === 0 && !event.target.closest('dialog, .voice-controls, #voice-toggle')) event.preventDefault();
 }, true);
 document.addEventListener('click', event => {
-  if (!hearing.active || event.target.closest('dialog')) return;
+  if (!hearing.active || event.target.closest('dialog, .voice-controls, #voice-toggle')) return;
   event.preventDefault(); event.stopImmediatePropagation(); hearing.next();
 }, true);
 document.addEventListener('keydown', event => {
-  if (!hearing.active || event.target.closest('dialog') || !['Enter', ' '].includes(event.key)) return;
+  if (!hearing.active || event.target.closest('dialog, .voice-controls, #voice-toggle') || !['Enter', ' '].includes(event.key)) return;
   event.preventDefault(); event.stopImmediatePropagation();
   if (!event.repeat) hearing.next();
 }, true);
@@ -233,7 +271,7 @@ for (const id of ['product-link', 'upload-trigger', 'cards']) {
   $(id).addEventListener('focusin', () => hearing.stop());
   $(id).addEventListener('click', () => hearing.stop());
 }
-window.addEventListener('pagehide', () => { hearing.stop(); generationController?.abort(); });
+window.addEventListener('pagehide', () => { hearing.stop(); voices.dispose(); generationController?.abort(); });
 $('resolve').addEventListener('click', () => { $('verdict-dialog').close(); if ($('resolve').dataset.action === 'evidence') { openEvidence('measurement'); } });
 if (document.modelContext?.registerTool) {
   const lifecycle = new AbortController();

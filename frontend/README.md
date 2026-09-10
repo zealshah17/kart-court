@@ -1,3 +1,11 @@
+## Spoken arguments
+
+After case generation, click **Objection!** to start the arguments. Angel uses Coral and Devil uses Onyx through OpenAI's `gpt-4o-mini-tts` speech endpoint. Angel delivers a forceful, persuasive closing argument; Devil uses an aggressive, skeptical cross-examination style. Both emphasize evidence with deliberate pauses and clear diction. These are AI-generated voices.
+
+The server returns MP3 audio, which plays through a standard audio player. If automatic playback is blocked, press the player's Play button. This does not require the browser's speech synthesis engine. The speaker button toggles between **🔊** (sound on) and **🔇** (muted). Muting stops playback; advancing, ending the hearing, or hiding the tab stops the current audio. Speech bubbles appear when the audio player reports playback has started. Mouth animation follows playing, pause, buffering, and end events. While a new voice line is generating, the next bubble stays hidden. Muted dialogue and audio failures show the text immediately. Text dialogue remains available when audio fails.
+
+`POST /api/speech` accepts `{ "speaker": "angel", "text": "An argument" }` from the frontend page. The API key remains server-side. New voice lines use OpenAI API credits; up to 32 successful clips are cached in server memory, with a browser-session cache for replay. Restarting/reloading clears the respective caches. Requests have a 600-character limit, a timeout, and a concurrency limit. Voice errors appear next to the player.
+
 ## Live product-link connection
 
 Start both servers from the repository root in separate terminals:
