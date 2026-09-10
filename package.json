@@ -1,0 +1,7 @@
+{
+  "name": "product-court",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "node server.mjs", "start": "node server.mjs", "check": "node --check dist/app.js && node --check dist/hearing.js && node --check server.mjs", "test": "node --test tests/hearing.test.mjs" }
+}
