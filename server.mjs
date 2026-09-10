@@ -1,3 +1,6 @@
+import './server/env.mjs';
+import { createTestCaseHandler } from './server/test-case-api.mjs';
+const handleTestCase = createTestCaseHandler();
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
@@ -6,6 +9,7 @@ import { networkInterfaces } from 'node:os';
 const root = fileURLToPath(new URL('./dist', import.meta.url));
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp' };
 const server = createServer(async (req, res) => {
+  if (new URL(req.url, 'http://localhost').pathname === '/api/test-case') { await handleTestCase(req, res); return; }
   try {
     const path = resolve(root, '.' + decodeURIComponent(new URL(req.url, 'http://localhost').pathname));
     if (path !== root && !path.startsWith(root + '/')) { res.writeHead(403).end(); return; }

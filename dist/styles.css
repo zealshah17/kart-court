@@ -69,3 +69,70 @@
 .scene .speech::after{content:'▾';position:absolute;right:.6em;bottom:0;font-size:.8em;color:#674226}
 .court-conversation,.court-conversation button{cursor:pointer}
 @media(max-width:800px){.scene .speech,.scene.hearing .speech{bottom:70%;max-width:38%;font-size:clamp(14px,2.05cqw,18px);padding:.45em .7em .65em}.scene .speech.angel{right:62%}.scene .speech.devil{left:62%;max-width:36%}}
+
+/* API test controls and an empty evidence board until a case is generated. */
+.board.empty .cards,.board.empty .question,.board.empty footer{visibility:hidden;pointer-events:none}
+button:disabled{cursor:wait;filter:saturate(.4);opacity:.7}
+.chair-thumb img{width:100%;height:100%;object-fit:contain}
+.test-product{object-fit:contain;image-rendering:auto}
+#product-name{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#exhibit-name{display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The evidence board is a single scrollable collection, not a fixed questionnaire. */
+.dynamic-board{display:flex;flex-direction:column;gap:.7cqw;background:#f8edd8;padding:.7cqw;overflow:hidden}
+.dynamic-board .board-summary{flex:none;margin:0;padding:.25cqw .2cqw .65cqw;border-bottom:2px solid #c8ad88;color:#756045;font-size:1cqw;line-height:1.35}
+.dynamic-board .cards{display:flex;flex-direction:column;gap:.65cqw;flex:1;min-height:0;max-height:none;overflow-y:auto;padding-right:.3cqw;scrollbar-color:#b69c79 transparent}
+.case-card{display:flex;flex-direction:column;align-items:flex-start;gap:.4cqw;flex:none;width:100%;text-align:left;padding:1cqw;border:2px solid #bea27f;border-radius:.65cqw;background:#fff8e9;color:#241b35;box-shadow:0 2px 0 #e2cfb0;overflow:hidden}
+.case-card:hover{background:#fffdf3;border-color:#81653f}
+.case-card:focus-visible{outline:3px solid #39624c;outline-offset:-4px}
+.case-card-label{font-size:.85cqw;line-height:1.2;background:#e8dfcd;color:#624d32;border-radius:3px;padding:.2cqw .45cqw}
+.case-card strong{font-size:1.3cqw;line-height:1.25;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.case-card-body{font-size:1.05cqw;line-height:1.4;color:#62596f;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.case-card img{width:100%;max-height:9cqw;object-fit:contain;background:#eee4d1;border-radius:3px}
+.dynamic-board footer{flex:none;margin:0;padding-top:.5cqw;border-top:2px solid #c8ad88}
+#verdict-body{white-space:pre-line}
+@media(max-width:800px){.dynamic-board{padding:16px;gap:12px}.dynamic-board .board-summary{font-size:16px;padding-bottom:10px}.dynamic-board .cards{max-height:65vh;gap:12px;padding-right:5px}.case-card{padding:16px;gap:8px;border-radius:8px}.case-card-label{font-size:13px;padding:4px 8px}.case-card strong{font-size:22px}.case-card-body{font-size:17px}.case-card img{max-height:160px}.dynamic-board footer{padding-top:12px}}
+
+/* Independent courtroom and right-hand evidence panel. The SVG viewport shows
+   only the blank board from the generated asset, without redrawing its pixels. */
+.court{background:#57351f}
+.board.dynamic-board{left:70.6%;top:0;width:29.4%;height:100%;margin:0;padding:10.5% 2.5% 9% 2.5%;border:0;box-shadow:none;background:transparent;isolation:isolate}
+.board-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden}
+.dynamic-board>.sr-only{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);padding:0;margin:-1px;overflow:hidden}
+.dynamic-board footer{display:none}
+.dynamic-board .board-summary{font-size:.95cqw;background:transparent}
+.dynamic-board .case-card{background:#fff8e9ed}
+@media(max-width:800px){
+  .court{padding-bottom:0}
+  .board.dynamic-board{position:relative;left:auto;top:auto;width:min(100%,540px);height:auto;aspect-ratio:467 / 992;margin:0 auto;padding:35% 8.5% 30%;max-height:none}
+  .dynamic-board .board-summary{font-size:16px}
+  .dynamic-board .cards{max-height:none}
+}
+
+.board.dynamic-board{padding:0}
+.board-content{position:absolute;inset:16.5% 9% 14%;display:flex;flex-direction:column;gap:.7cqw;min-height:0;overflow:hidden}
+@media(max-width:800px){.board.dynamic-board{padding:0}.board-content{gap:12px}}
+
+/* One action row leaves the space below the intake clear. */
+.scene .actions{left:21%;width:58%;gap:.6cqw}
+.scene .actions button{flex:1;min-width:0;width:auto;gap:.4cqw;padding:.3cqw .5cqw;font-size:1.25cqw;white-space:nowrap}
+.scene .actions #test-case{background:#34543f;color:#fff0ce;border-color:#b58a4d;font-weight:700}
+.scene .actions span{font-size:1.9cqw}
+@media(max-width:800px){.scene .actions button{font-size:1.8cqw}.scene .actions span{font-size:2.6cqw}}
+
+/* Brass exhibit plate fitted inside the pedestal's existing wooden inset. */
+.scene .exhibit-label{left:43.5%;top:58.6%;width:13%;height:5.7%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1cqw;padding:.2cqw .65cqw;color:#45270f;background:linear-gradient(100deg,#d29849,#f5c779 30%,#efbe6c 70%,#c58b3d);border:.2cqw solid #71421e;border-radius:1px;box-shadow:0 .15cqw 0 #3d2517,inset 0 .15cqw 0 #ffe0a0,inset 0 -.15cqw 0 #ae702d;text-shadow:0 1px #ffd690;font-family:'VT323',monospace}
+.scene .exhibit-label::before,.scene .exhibit-label::after{content:'';position:absolute;top:12%;bottom:12%;width:.24cqw;background:linear-gradient(#674323 0 12%,transparent 12% 88%,#674323 88%);box-shadow:1px 0 #f9d68d}
+.scene .exhibit-label::before{left:4%}.scene .exhibit-label::after{right:4%}
+.scene .exhibit-label strong{font-size:1.1cqw;font-weight:400;letter-spacing:.07em;line-height:1}
+.scene .exhibit-label #exhibit-name{flex:none;width:100%;font-size:.8cqw;line-height:1.1;font-family:'Barlow Condensed',sans-serif}
+.scene .exhibit-label .plaque-heart{font-size:.7cqw;line-height:1;color:#714321}
+@media(max-width:800px){.scene .exhibit-label strong{font-size:1.55cqw}.scene .exhibit-label #exhibit-name{font-size:1.1cqw}.scene .exhibit-label .plaque-heart{font-size:1cqw}}
+
+/* Keep the complete product below the room preview and above the tabletop. */
+.scene .center-product{left:39%;top:36.5%;width:22%;height:17.5%;object-fit:contain;object-position:center bottom;image-rendering:auto}
+.scene .exhibit-label{left:40.5%;width:19%;height:auto;min-height:5.7%;padding:.4cqw .9cqw;gap:.2cqw}
+.scene .exhibit-label #exhibit-name{display:block;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;font-size:.8cqw;line-height:1.15}
+#test-case:disabled{cursor:not-allowed}
+@media(max-width:800px){.scene .exhibit-label #exhibit-name{font-size:1.1cqw}}
+
+.scene .center-product.pixel-product{image-rendering:pixelated;background:transparent;border:0;box-shadow:none;object-fit:contain;object-position:center bottom}

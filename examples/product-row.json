@@ -1,0 +1,51 @@
+{
+  "product": {
+    "asin": "B0F4Y4XJKK",
+    "url": "https://www.amazon.com/dp/B0F4Y4XJKK",
+    "title": "Dowinx Big and Tall Office Chair with Pocket Spring Cushion,High Back Computer Gaming Chairs with Adjustable Armrests,Executive Desk Chairs with Lumbar Support and Footrest,PU -White",
+    "price": "$179.99",
+    "currency": null,
+    "rating": 4.5,
+    "ratingCount": 517,
+    "imageUrl": "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SL1500_.jpg",
+    "images": [
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SL1500_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SY300_SX300_QL70_FMwebp_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SY355_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SY450_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SX425_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SX466_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SX522_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SX569_.jpg",
+      "https://m.media-amazon.com/images/I/61c2Asktv3L._AC_SX679_.jpg"
+    ],
+    "bulletPoints": [
+      "Double-Layered Thickened Backrest: This big and tall office chair features a dual-layer backrest design with a soft cushioning layer and a supportive layer, offering enhanced comfort and ergonomic support even during extended periods of sitting",
+      "Individual Pocket Springs:The seat cushion is composed of pocket springs, a type of spring commonly used in sofas. Each spring operates independently, offering elasticity and support by adapting to pressure and contouring to your body's weight, providing a luxurious and comfortable experience akin to that of a sofa",
+      "Flexible Adjustability: This executive chair offers a reclining range from 90° to 135°, accommodating various activities whether you’re working or relaxing. Additionally, the adjustable padded armrests can be set to your preferred height, ensuring personalized comfort and support",
+      "PU Leather or Tech Cloth Options: Choose between classic PU leather for a sleek, modern look or breathable tech cloth for a softer, more comfortable feel. Both materials offer unique benefits to suit your style and preferences",
+      "Durability and Longevity: This task chair is built with high-quality materials and robust construction, ensuring it can withstand daily use and maintain its performance over time.And we also have a one-year repair service and after-sales service"
+    ],
+    "description": null,
+    "availability": "In Stock {\"isInternal\":false,\"showInsightsHub\":false,\"isRobot\":false,\"showFaceout\":true,\"merchantId\":\"A2JBWBGU6FY774\",\"availableBadges\":\"\",\"loggedIn\":false,\"asin\":\"B0F4Y4XJKK\",\"showBadge\":false,\"ingressFaceout\":\"\",\"availableFaceouts\":\"TK_BOUGHT\"}",
+    "specifications": {
+      "Brand": "Dowinx",
+      "Color": "White",
+      "Material": "Metal",
+      "Product Dimensions": "20.1\"D x 22.8\"W x 45.3\"H",
+      "Size": "PU Leather"
+    }
+  },
+  "reviews": [],
+  "extraction": {
+    "fetchedAt": "2026-09-10T17:28:25.633Z",
+    "reviewSourceUrl": "https://www.amazon.com/dp/B0F4Y4XJKK",
+    "reviewScope": "visible_sample",
+    "warnings": [
+      "The reviews page was unavailable or required sign-in; only reviews visible on the product page are included.",
+      "No readable reviews were available. This does not mean the product has no reviews."
+    ]
+  },
+  "id": "5e8a4749-d66a-46e7-be26-1f4287b3fe9f",
+  "createdAt": "2026-09-10T17:28:26.26038+00:00"
+}

@@ -10,13 +10,13 @@
 <main class="court" aria-label="Product Court">
   <section class="scene" aria-label="The courtroom">
     <h1 class="court-title">Product Court</h1>
-    <div class="room-display"><h2>ROOM EVIDENCE</h2><svg viewBox="560 172 190 140" role="img" aria-label="Example room with sage lounge chair"><image href="assets/courtroom.png" width="1586" height="992"/></svg></div>
+    <div class="room-display"><h2>ROOM EVIDENCE</h2></div>
     <button class="character character-angel" id="angel-character" aria-label="Hear the angel's case"><span class="character-art"><img src="assets/IMG_9590.png" alt="Angel" draggable="false"><span class="talking-mouth angel-mouth" aria-hidden="true"><svg viewBox="0 0 32 26" shape-rendering="crispEdges"><path fill="#ffe3c7" d="M0 0h32v26H0z"/><g class="mouth-open"><path fill="#432b25" d="M5 6h22v10h-4v5H9v-5H5z"/><path fill="#ef8f80" d="M10 13h13v6H10z"/></g><path class="mouth-closed" fill="#65412c" d="M7 11h5v3h10v-3h4v6H10v-3H7z"/></svg></span></span></button>
     <button class="character character-devil" id="devil-character" aria-label="Hear the devil's case"><span class="character-art"><img src="assets/devil-cutout.png%20angel-cutout.png" alt="Devil" draggable="false"><span class="talking-mouth devil-mouth" aria-hidden="true"><svg viewBox="0 0 32 26" shape-rendering="crispEdges"><path fill="#ff5946" d="M0 0h32v26H0z"/><g class="mouth-open"><path fill="#301923" d="M6 5h21v12h-5v5H11v-5H6z"/><path fill="#ffb29a" d="M11 15h11v5H11z"/></g><path class="mouth-closed" fill="#301923" d="M7 10h4v4h12v-4h4v7H11v-3H7z"/></svg></span></span></button>
     <div class="speech angel" id="angel" hidden><strong>ANGEL:</strong><span></span></div>
     <div class="speech devil" id="devil" hidden><strong>DEVIL:</strong><span></span></div>
-    <svg class="center-product" viewBox="510 320 245 200" role="img" aria-label="Sage lounge chair on the exhibit pedestal"><defs><clipPath id="chair-outline"><path d="M594 332L625 327L688 328L717 337L732 353L730 402L740 408L744 427L739 468L726 493L724 513L713 516L706 499L699 493L560 498L558 513L548 513L545 498L534 494L525 478L519 451L520 420L534 405L553 395L582 391Z"/></clipPath></defs><image href="assets/courtroom.png" width="1586" height="992" clip-path="url(#chair-outline)"/></svg>
-    <div class="exhibit-label">EXHIBIT A<br><span id="exhibit-name">Sage lounge chair</span></div>
+    <img class="center-product test-product" alt="" hidden>
+    <div class="exhibit-label" aria-label="Exhibit A plaque"><strong>EXHIBIT A</strong><span id="exhibit-name" hidden></span></div>
     <div id="room-preview" class="room-preview" hidden></div>
     <p id="hearing-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     <div class="intake">
@@ -27,21 +27,20 @@
       <div class="upload-field"><label for="room-photos">Room photos</label><button id="upload-trigger">▧ &nbsp; Add photos…</button></div>
       <input id="room-photos" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
     </div>
-    <div class="actions"><button id="objection" class="objection"><span aria-hidden="true">⚒</span> Objection!</button><button id="add-evidence" class="add"><span aria-hidden="true">＋</span> Add evidence</button></div>
+    <div class="actions"><button id="test-case" type="button" disabled title="Generate dialogue using the saved product and reviews">Test case</button><button id="objection" disabled class="objection"><span aria-hidden="true">⚒</span> Objection!</button><button id="add-evidence" class="add"><span aria-hidden="true">＋</span> Add evidence</button></div>
   </section>
-  <aside class="board" aria-label="Evidence board">
+  <aside class="board updated dynamic-board" aria-label="Evidence board">
+    <svg class="board-art" viewBox="1119 0 467 992" preserveAspectRatio="none" aria-hidden="true" focusable="false"><image href="assets/courtroom-empty-evidence-board.png" width="1586" height="992" preserveAspectRatio="none"/></svg>
     <h2 class="sr-only">Evidence board</h2>
-    <div class="cards" id="cards">
-      <button class="evidence-card" id="product-card"><span class="thumb chair-thumb" aria-hidden="true"></span><span class="card-copy"><strong id="product-name">Sage lounge chair</strong><b>Selected product</b><span id="product-description">The chair in question.</span></span><span class="badge product">Product</span></button>
-      <button class="evidence-card" id="room-card"><span class="thumb room-thumb" id="room-thumb" aria-hidden="true"></span><span class="card-copy"><strong id="room-name">Warm wood +<br>green accents</strong><b id="room-subtitle">Visible in your room photo</b><span id="room-description">Matches your room’s style<br>and colors.</span></span><span class="badge room">Room photo</span></button>
-      <button class="evidence-card" id="fit-card"><span class="thumb fit-thumb" aria-hidden="true"><span>?</span><span>←····→</span><span class="small-chair">♧</span></span><span class="card-copy"><strong>Enough space beside<br>the sofa?</strong><b id="fit-subtitle">Measurements needed</b><span id="fit-description">Check the available space<br>in your room.</span></span><span class="badge unresolved" id="fit-badge">Unresolved</span></button>
+    <div class="board-content">
+    <p id="board-summary" class="board-summary" role="status">Your case evidence will appear here.</p>
+    <div class="cards" id="cards"></div>
     </div>
-    <section class="question"><h2><span aria-hidden="true">?</span> COURT QUESTION</h2><label for="measurement" id="question-label">How wide is the available space?</label><div class="measurement-field"><span aria-hidden="true">▱</span><input id="measurement" placeholder="Add measurement…" aria-describedby="measurement-feedback" autocomplete="off"></div><p id="measurement-feedback" role="status"></p></section>
     <footer><span>❧</span><p>BETTER DECISIONS<br>A COZIER YOU<br>♥</p><span>❧</span></footer>
   </aside>
 </main>
 <div id="toast" role="status" hidden></div>
-<dialog id="evidence-dialog"><form id="evidence-form"><button type="button" class="close" aria-label="Close dialog">×</button><p class="eyebrow">PRODUCT COURT</p><h2>Add to the evidence board</h2><label>Evidence type<select id="evidence-type"><option value="note">A note for the court</option><option value="product">Product details</option><option value="measurement">Room measurement</option></select></label><div id="note-fields"><label>Title<input id="note-title" maxlength="65" placeholder="Comfort, color, delivery…"></label><label>Your evidence<textarea id="note-body" rows="3" maxlength="500" placeholder="What should the court consider?"></textarea></label></div><div id="product-fields" hidden><label>Product name<input id="edit-name" maxlength="65" value="Sage lounge chair"></label><label>Chair width (cm)<input id="chair-width" type="number" min="1" max="1000" step="0.1" placeholder="Enter the product’s actual width"></label><p class="help">Use the width from the product listing. The court leaves space for 10 cm of clearance.</p></div><div id="measurement-fields" hidden><label>Available width<input id="edit-measurement" placeholder="e.g. 110 cm or 44 in"></label></div><p class="form-error" id="form-error" role="alert"></p><button class="primary" type="submit">Add evidence</button></form></dialog>
+<dialog id="evidence-dialog"><form id="evidence-form"><button type="button" class="close" aria-label="Close dialog">×</button><p class="eyebrow">PRODUCT COURT</p><h2>Add to the evidence board</h2><label>Evidence type<select id="evidence-type"><option value="note">A note for the court</option><option value="product">Product details</option><option value="measurement">Available width (optional)</option></select></label><div id="note-fields"><label>Title<input id="note-title" maxlength="65" placeholder="Comfort, color, delivery…"></label><label>Your evidence<textarea id="note-body" rows="3" maxlength="500" placeholder="What should the court consider?"></textarea></label></div><div id="product-fields" hidden><label>Product name<input id="edit-name" maxlength="65" value=""></label><label>Product width (cm)<input id="chair-width" type="number" min="1" max="1000" step="0.1" placeholder="Enter the product’s actual width"></label><p class="help">Use the width from the product listing. Only width is compared; depth and access need separate checks.</p></div><div id="measurement-fields" hidden><label>Available width<input id="edit-measurement" placeholder="e.g. 110 cm or 44 in"></label></div><p class="form-error" id="form-error" role="alert"></p><button class="primary" type="submit">Add evidence</button></form></dialog>
 <dialog id="verdict-dialog"><button class="close" aria-label="Close dialog">×</button><p class="eyebrow">THE COURT IS IN SESSION</p><h2 id="verdict-title">Objection!</h2><p id="verdict-body"></p><div class="arguments"><p><strong>ANGEL’S CASE</strong><span id="angel-case"></span></p><p><strong>DEVIL’S CASE</strong><span id="devil-case"></span></p></div><button class="primary" id="resolve">Add missing evidence</button></dialog>
 <script type="module" src="app.js"></script>
 </body></html>
