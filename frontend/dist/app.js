@@ -1,3 +1,4 @@
+import { createVerdict } from './verdict.js';
 import { caseReady } from './case-ready.js';
 import { evidenceCards } from './evidence.js';
 import { createHearing } from './hearing.js';
@@ -32,6 +33,9 @@ export function parseMeasurement(value) {
 function fit() { return state.available && state.width ? state.available >= state.width + 10 ? 'fits' : state.available >= state.width ? 'tight' : 'small' : 'unknown'; }
 function showDetail(card) {
   hearing.stop();
+  judge.reset();
+  $('verdict-choices').hidden = true;
+  $('resolve').hidden = false;
   $('verdict-title').textContent = card.title;
   $('verdict-body').textContent = card.detail || card.body;
   document.querySelector('.arguments').hidden = true;
@@ -165,6 +169,13 @@ $('room-photos').addEventListener('change', async (event) => {
   toast(loaded.length === files.length ? 'Room photos entered into evidence.' : 'Valid room photos added (up to 5, under 10 MB each).'); event.target.value = '';
 });
 const scene = document.querySelector('.scene');
+const judge = createVerdict({ scene, panel: $('judge-verdict'), title: $('judge-title'), text: $('judge-line'), label: $('judge-choice'), done: $('judge-done') });
+$('judge-done').addEventListener('click', () => { judge.reset(); $('objection').focus(); });
+for (const choice of ['yes', 'no']) $(`verdict-${choice}`).addEventListener('click', () => {
+  if ($('verdict-choices').hidden || !$('verdict-dialog').open) return;
+  $('verdict-dialog').close();
+  judge.show(choice);
+});
 const hearing = createHearing({
   onLine(line) {
     document.body.classList.add('court-conversation');
@@ -189,7 +200,9 @@ const hearing = createHearing({
     $('hearing-announcement').textContent = '';
     if (completed && generatedConversation) {
       $('verdict-title').textContent = 'The court needs your verdict.';
-      $('verdict-body').textContent = 'Review the evidence before deciding.';
+      $('verdict-body').textContent = 'You’ve heard both sides. Do you want to buy this product?';
+      $('verdict-choices').hidden = false;
+      $('resolve').hidden = true;
       document.querySelector('.arguments').hidden = true;
       $('resolve').textContent = 'Back to court'; $('resolve').dataset.action = 'close';
       $('verdict-dialog').showModal();
@@ -199,10 +212,12 @@ const hearing = createHearing({
 function startHearing() {
   if (hearing.active || generating) return;
   if (!generatedConversation) { toast('Click Start hearing to look up your product and generate dialogue.'); return; }
+  judge.reset();
   hearing.start(generatedConversation.lines);
 }
 $('test-case').addEventListener('click', async () => {
   if (!caseReady($('product-link').value, state.photos.length, generating)) { updateTestButton(); return; }
+  judge.reset();
   const productLink = $('product-link').value.trim();
   state.link = productLink;
   $('product-link').disabled = true;
@@ -217,6 +232,7 @@ $('test-case').addEventListener('click', async () => {
   document.querySelector('.center-product').hidden = true;
   document.querySelector('.board').classList.add('empty');
   $('board-summary').textContent = 'Gathering evidence for the case…';
+  $('loading-overlay').hidden = false;
   generationController = new AbortController();
   let failureMessage = '';
   try {
@@ -251,6 +267,7 @@ $('test-case').addEventListener('click', async () => {
     toast(failureMessage, 12000);
   } finally {
     generating = false;
+    $('loading-overlay').hidden = true;
     $('product-link').disabled = false;
     updateTestButton();
     $('test-case').textContent = 'Start hearing';
@@ -279,7 +296,7 @@ for (const id of ['product-link', 'upload-trigger', 'cards']) {
   $(id).addEventListener('focusin', () => hearing.stop());
   $(id).addEventListener('click', () => hearing.stop());
 }
-window.addEventListener('pagehide', () => { hearing.stop(); generationController?.abort(); });
+window.addEventListener('pagehide', () => { judge.reset(); hearing.stop(); generationController?.abort(); });
 $('resolve').addEventListener('click', () => {
   $('verdict-dialog').close();
 });
