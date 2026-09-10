@@ -1,3 +1,5 @@
+> The app lives in `frontend/`. From the repository root, run `cd frontend` before the npm commands below, or double-click `frontend/Start Product Court.command`. Keep your local API configuration in `frontend/.env`.
+
 # Product Court
 
 A responsive, interactive pixel-art furniture courtroom based on the supplied reference.
