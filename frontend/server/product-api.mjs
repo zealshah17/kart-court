@@ -15,11 +15,13 @@ export async function extractProduct(req, { signal, fetchImpl = fetch, backendUr
   if (typeof input.roomContext === 'string' && input.roomContext.trim()) req._kartCourtContext = input.roomContext.trim();
   let response;
   try {
+    console.log('[frontend] calling backend extract:', { backendUrl: String(new URL('/api/products/extract', backendUrl)), url: input.url.trim(), maxReviews: input.maxReviews ?? 10 });
     response = await fetchImpl(new URL('/api/products/extract', backendUrl), {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: input.url.trim(), maxReviews: input.maxReviews ?? 10 }),
       signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(120000)]) : AbortSignal.timeout(120000),
     });
+    console.log('[frontend] backend extract response:', { status: response.status, ok: response.ok });
   } catch (error) {
     if (signal?.aborted) throw error;
     throw new ProductApiError(502, error.name === 'TimeoutError' ? 'Product lookup timed out. Please try again.' : 'The product backend is unavailable. Start the backend and try again.');

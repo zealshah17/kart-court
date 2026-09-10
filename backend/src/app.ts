@@ -13,7 +13,9 @@ export function createApp(lookup = lookupProduct, save = saveExtraction) {
   let active = 0;
   app.post('/api/products/extract', async (req, res, next) => {
     const { url, maxReviews = 10 } = req.body || {};
+    console.log('[backend] POST /api/products/extract', { url, maxReviews, active });
     if (typeof url !== 'string' || url.length > 2048 || !isAmazonUrl(url)) {
+      console.log('[backend] invalid URL rejected');
       res.status(400).json({ error: { code: 'INVALID_URL', message: 'Provide a valid HTTPS Amazon product URL.' } }); return;
     }
     if (!['amzn.to', 'a.co'].includes(new URL(url).hostname) && !extractAsin(url)) {
@@ -29,9 +31,10 @@ export function createApp(lookup = lookupProduct, save = saveExtraction) {
     try {
       const result = await lookup(url, maxReviews);
       const saved = await save(url, result);
+      console.log('[backend] extract success', { asin: result.product?.asin || null, title: result.product?.title || null, reviews: result.reviews?.length || 0, customerSummary: !!result.product?.customerSummary?.text });
       res.json({ ...result, id: saved.id, createdAt: saved.createdAt });
     }
-    catch (error) { next(error); }
+    catch (error) { console.error('[backend] extract failed', error instanceof Error ? error.message : error); next(error); }
     finally { active--; }
   });
   const onError: ErrorRequestHandler = (error, _req, res, _next) => {

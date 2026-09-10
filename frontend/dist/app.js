@@ -2,7 +2,7 @@ import { caseReady } from './case-ready.js';
 import { evidenceCards } from './evidence.js';
 import { createHearing } from './hearing.js';
 const $ = (id) => document.getElementById(id);
-const state = { name: '', link: '', width: null, available: null, photos: [], notes: [] };
+const state = { name: '', link: '', width: null, available: null, photos: [], notes: [], userContext: '' };
 let caseData = null;
 let toastTimer;
 let generatedConversation = null;
@@ -45,6 +45,9 @@ function renderRoomPreview() {
   const canvas = document.createElement('canvas');
   canvas.width = 640;
   canvas.height = 480;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  canvas.style.display = 'block';
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   if (room) {
@@ -118,9 +121,7 @@ function renderFit() {
     if (item.image) { const image = new Image(); image.src = item.image; image.alt = item.title; card.append(image); }
     card.append(label, title, body);
     card.addEventListener('click', () => {
-      if (item.action === 'product' || item.action === 'measurement') openEvidence(item.action);
-      else if (item.action === 'note') { openEvidence('note'); $('note-title').value = item.title.slice(0,65); }
-      else showDetail(item);
+      showDetail(item);
     });
     $('cards').append(card);
   }
@@ -137,42 +138,31 @@ $('product-link').addEventListener('change', () => {
   catch { state.link = '';  input.setCustomValidity('Enter a valid http or https product link.'); input.reportValidity(); }
 });
 $('product-link').addEventListener('input', () => { $('product-link').setCustomValidity(''); updateTestButton(); });
-function changeEvidenceType() { for (const type of ['note','product','measurement']) $(`${type}-fields`).hidden = $('evidence-type').value !== type; $('form-error').textContent = ''; }
-function openEvidence(type = 'note') { hearing.stop(); $('evidence-type').value = type; $('edit-name').value = state.name; $('chair-width').value = state.width || ''; $('edit-measurement').value = state.available ? `${state.available} cm` : ''; changeEvidenceType(); $('evidence-dialog').showModal(); }
-$('evidence-type').addEventListener('change', changeEvidenceType);
-$('add-evidence').addEventListener('click', () => openEvidence());
-function addNote(title, body) {
-  if (!title.trim() || !body.trim()) throw new Error('Add a title and a note for the court.');
-  state.notes.push({ title: title.trim().slice(0,65), body: body.trim().slice(0,500) });
-  renderFit(); return { added: true, title: title.trim() };
-}
-$('evidence-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  try {
-    const type = $('evidence-type').value;
-    if (type === 'note') { addNote($('note-title').value, $('note-body').value); $('note-title').value = ''; $('note-body').value = ''; }
-    if (type === 'product') { const name = $('edit-name').value.trim(); const raw = $('chair-width').value; const width = raw === '' ? null : Number(raw); if (!name) throw new Error('Enter the product’s name.'); if (width !== null && (!Number.isFinite(width) || width <= 0 || width > 1000)) throw new Error('Enter a chair width between 1 and 1000 cm.'); state.name = name; state.width = width;  renderFit(); }
-    if (type === 'measurement') setMeasurement($('edit-measurement').value);
-    $('evidence-dialog').close(); toast('Evidence added to the court.');
-  } catch (error) { $('form-error').textContent = error.message; }
-});
 for (const close of document.querySelectorAll('dialog .close')) close.addEventListener('click', () => close.closest('dialog').close());
 for (const dialog of document.querySelectorAll('dialog')) dialog.addEventListener('click', (event) => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
 $('upload-trigger').addEventListener('click', () => $('room-photos').click());
 
 $('room-photos').addEventListener('change', async (event) => {
   const files = Array.from(event.target.files || []); if (!files.length) return;
-  const valid = files.filter(file => ['image/png','image/jpeg','image/webp'].includes(file.type) && file.size <= 10 * 1024 * 1024).slice(0,5);
-  if (!valid.length) { toast('Choose PNG, JPG, or WebP images under 10 MB.'); event.target.value = ''; return; }
+  const roomPattern = /room|interior|living|bedroom|kitchen|bath|hallway|home|house|studio|office/i;
+  const valid = files.filter(file => {
+    const typeOk = ['image/png','image/jpeg','image/webp'].includes(file.type) && file.size <= 10 * 1024 * 1024;
+    if (!typeOk) return false;
+    return roomPattern.test(file.name || '') || file.size >= 200 * 1024;
+  }).slice(0, 5);
+  if (!valid.length) {
+    toast('Only room or house interior photos belong in the courtroom scene. Use a room image, not a product shot or unrelated image.');
+    event.target.value = ''; return;
+  }
   const loaded = [];
   for (const file of valid) { const url = URL.createObjectURL(file); const img = new Image(); img.src = url; try { await img.decode(); loaded.push({ name: file.name, url }); } catch { URL.revokeObjectURL(url); } }
-  if (!loaded.length) { toast('These images could not be opened. Please choose another photo.'); return; }
+  if (!loaded.length) { toast('These images could not be opened. Please choose another room photo.'); return; }
   state.photos.forEach(photo => URL.revokeObjectURL(photo.url)); state.photos = loaded; updateTestButton();
   document.querySelector('.board').classList.add('updated');
   const first = state.photos[0]; renderFit();
-  $('upload-trigger').textContent = `▧  ${state.photos.length} photo${state.photos.length === 1 ? '' : 's'} added`;
+  $('upload-trigger').textContent = `▧  ${state.photos.length} room photo${state.photos.length === 1 ? '' : 's'} added`;
   $('room-preview').hidden = false;
-  toast(loaded.length === files.length ? 'Room photos entered into evidence.' : 'Valid photos added (up to 5, under 10 MB each).'); event.target.value = '';
+  toast(loaded.length === files.length ? 'Room photos entered into evidence.' : 'Valid room photos added (up to 5, under 10 MB each).'); event.target.value = '';
 });
 const scene = document.querySelector('.scene');
 const hearing = createHearing({
@@ -222,7 +212,6 @@ $('test-case').addEventListener('click', async () => {
   generating = true;
   hearing.stop();
   generatedConversation = null;
-  $('objection').disabled = true;
   $('test-case').disabled = true;
   $('test-case').textContent = 'Creating case…';
   document.querySelector('.center-product').hidden = true;
@@ -231,7 +220,8 @@ $('test-case').addEventListener('click', async () => {
   generationController = new AbortController();
   let failureMessage = '';
   try {
-    const response = await fetch('/api/product-case', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: productLink }), signal: AbortSignal.any([generationController.signal, AbortSignal.timeout(740000)]) });
+    const productSummary = caseData?.product?.customerSummary?.text || '';
+    const response = await fetch('/api/product-case', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: productLink, roomContext: state.userContext || productSummary || '' }), signal: AbortSignal.any([generationController.signal, AbortSignal.timeout(740000)]) });
     const data = await response.json().catch(() => { throw new Error('The API route is unavailable. Restart Product Court using Start Product Court.command.'); });
     if (!response.ok) throw new Error(data.error || 'Generation failed. Please retry.');
     caseData = data;
@@ -253,7 +243,6 @@ $('test-case').addEventListener('click', async () => {
 
     document.querySelector('.board').classList.remove('empty');
     renderFit();
-    $('objection').disabled = false;
     hearing.start(generatedConversation.lines);
   } catch (error) {
     document.querySelector('.board').classList.remove('empty');
@@ -268,7 +257,6 @@ $('test-case').addEventListener('click', async () => {
     if (failureMessage) $('board-summary').textContent = failureMessage;
   }
 });
-$('objection').addEventListener('click', () => startHearing());
 for (const side of ['angel', 'devil']) $(`${side}-character`).addEventListener('click', () => startHearing(side));
 // Capture before app buttons so a dialogue click never also opens a form.
 // The initiating click reaches its target normally because no hearing is active yet.
@@ -284,7 +272,7 @@ document.addEventListener('keydown', event => {
   event.preventDefault(); event.stopImmediatePropagation();
   if (!event.repeat) hearing.next();
 }, true);
-document.addEventListener('keydown', event => { if (event.key === 'Escape' && hearing.active) { hearing.stop(); $('objection').focus(); } });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && hearing.active) { hearing.stop(); $('test-case').focus(); } });
 document.addEventListener('visibilitychange', () => hearing.pause(document.hidden));
 // Editing evidence cancels the old case so its pending verdict cannot interrupt a form.
 for (const id of ['product-link', 'upload-trigger', 'cards']) {
@@ -294,7 +282,6 @@ for (const id of ['product-link', 'upload-trigger', 'cards']) {
 window.addEventListener('pagehide', () => { hearing.stop(); generationController?.abort(); });
 $('resolve').addEventListener('click', () => {
   $('verdict-dialog').close();
-  if ($('resolve').dataset.action === 'evidence') { openEvidence('measurement'); }
 });
 for (const close of document.querySelectorAll('dialog .close')) close.addEventListener('click', () => close.closest('dialog').close());
 if (document.modelContext?.registerTool) {

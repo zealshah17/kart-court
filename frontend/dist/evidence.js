@@ -16,7 +16,7 @@ export function evidenceCards({ product, dimensions, conversation, name, width, 
         : count ? `${count} customer-experience snippets included in the conversation` : 'Review text unavailable',
       detail: [
         product.rating != null ? `Listing rating: ${product.rating}${product.ratingCount != null ? ` (${product.ratingCount} ratings)` : ''}` : 'No listing rating supplied.',
-        hasSummary ? 'Amazon customerSummary is the available customer-experience context; it is used instead of waiting for review text.' : 'A star rating is not review text. Add reviews to the product JSON to include customer experiences.',
+        hasSummary ? 'Amazon customerSummary is the available customer-experience context; it is used instead of waiting for review text.' : 'Amazon customerSummary is the available customer-experience context; it is used instead of waiting for review text.',
       ].join('\n'),
     });
   }
