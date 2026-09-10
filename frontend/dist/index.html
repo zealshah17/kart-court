@@ -9,6 +9,10 @@
 <body>
 <main class="court" aria-label="Kart Court">
   <section class="scene" aria-label="The courtroom">
+    <section id="judge-verdict" class="judge-verdict" hidden aria-labelledby="judge-title">
+      <div class="judge-speech" role="status" aria-live="polite"><p id="judge-choice" class="eyebrow"></p><h2 id="judge-title"></h2><p id="judge-line"></p><button id="judge-done" type="button">Back to court</button></div>
+      <div class="judge-sprite" role="img" aria-label="Pixel judge banging a gavel on the bench"></div>
+    </section>
     <h1 class="court-title">Kart Court</h1>
     <div class="room-display"><h2>ROOM EVIDENCE</h2></div>
     <button class="character character-angel" id="angel-character" aria-label="Hear the angel's case"><span class="character-art"><img src="assets/IMG_9590.png" alt="Angel" draggable="false"><span class="talking-mouth angel-mouth" aria-hidden="true"><svg viewBox="0 0 32 26" shape-rendering="crispEdges"><path fill="#ffe3c7" d="M0 0h32v26H0z"/><g class="mouth-open"><path fill="#432b25" d="M5 6h22v10h-4v5H9v-5H5z"/><path fill="#ef8f80" d="M10 13h13v6H10z"/></g><path class="mouth-closed" fill="#65412c" d="M7 11h5v3h10v-3h4v6H10v-3H7z"/></svg></span></span></button>
@@ -40,5 +44,14 @@
   </aside>
 </main>
 <div id="toast" role="status" hidden></div>
-<dialog id="verdict-dialog"><button class="close" aria-label="Close dialog">×</button><p class="eyebrow">THE COURT IS IN SESSION</p><h2 id="verdict-title">The court is in session</h2><p id="verdict-body"></p><div class="arguments"><p><strong>ANGEL’S CASE</strong><span id="angel-case"></span></p><p><strong>DEVIL’S CASE</strong><span id="devil-case"></span></p></div><button class="primary" id="resolve">Back to court</button></dialog><script type="module" src="app.js"></script>
+<div id="loading-overlay" class="loading-overlay" role="status" aria-live="polite" hidden>
+  <div class="loading-card">
+    <span class="loading-gavel" aria-hidden="true">⚖</span>
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <p class="loading-title">Generating your case report…</p>
+    <p class="loading-sub">The angel and devil are reviewing the evidence.</p>
+  </div>
+</div>
+<dialog id="evidence-dialog"><form id="evidence-form"><button type="button" class="close" aria-label="Close dialog">×</button><p class="eyebrow">PRODUCT COURT</p><h2>Add to the evidence board</h2><label>Evidence type<select id="evidence-type"><option value="note">A note for the court</option><option value="product">Product details</option><option value="measurement">Available width (optional)</option></select></label><div id="note-fields"><label>Title<input id="note-title" maxlength="65" placeholder="Comfort, color, delivery…"></label><label>Your evidence<textarea id="note-body" rows="3" maxlength="500" placeholder="What should the court consider?"></textarea></label></div><div id="product-fields" hidden><label>Product name<input id="edit-name" maxlength="65" value=""></label><label>Product width (cm)<input id="chair-width" type="number" min="1" max="1000" step="0.1" placeholder="Enter the product’s actual width"></label><p class="help">Use the width from the product listing. Only width is compared; depth and access need separate checks.</p></div><div id="measurement-fields" hidden><label>Available width<input id="edit-measurement" placeholder="e.g. 110 cm or 44 in"></label></div><p class="form-error" id="form-error" role="alert"></p><button class="primary" type="submit">Add evidence</button></form></dialog>
+<dialog id="verdict-dialog"><button class="close" aria-label="Close dialog">×</button><p class="eyebrow">THE COURT IS IN SESSION</p><h2 id="verdict-title">Objection!</h2><p id="verdict-body"></p><div class="arguments"><p><strong>ANGEL’S CASE</strong><span id="angel-case"></span></p><p><strong>DEVIL’S CASE</strong><span id="devil-case"></span></p></div><div id="verdict-choices" class="verdict-choices" hidden><button class="primary" id="verdict-yes" type="button">Yes, I want it</button><button class="primary verdict-no" id="verdict-no" type="button">No, I’ll pass</button></div><button class="primary" id="resolve">Back to court</button></dialog><script type="module" src="app.js"></script>
 </body></html>
